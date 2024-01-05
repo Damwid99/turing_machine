@@ -11,3 +11,7 @@ print(machine.tape)
 print(machine.tape[machine.tape_index])
 print(machine.tape[machine.tape_index-1])
 print(machine.relations)
+
+
+print("-----------------------------------")
+machine.run()

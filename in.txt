@@ -3,7 +3,7 @@ abc#
 alfabet wejsciowy:
 a
 slowo wejsciowe:
-abcdabcdabcdabcdabc
+aaa
 stany:
 1 2 3 4
 stan poczatkowy:
