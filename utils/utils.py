@@ -13,6 +13,8 @@ def render_txt(path: str):
         for idx, line in enumerate(lines):
             if line.strip() == 'slowo wejsciowe:' and idx + 1 < len(lines):
                 initial = [x for x in lines[idx + 1].strip()]
+            elif line.strip() == 'alfabet tasmowy:' and idx + 1 < len(lines):
+                tape_alphabet = [x for x in lines[idx + 1].strip()]
             elif line.strip() == 'stany:' and idx + 1 < len(lines):
                 states = lines[idx + 1].strip().split()
             elif line.strip() == 'stany akceptujace:' and idx + 1 < len(lines):
@@ -26,15 +28,16 @@ def render_txt(path: str):
             elif relation_flag == True:
                 relations.append(line.strip().split())
                 # print(line.strip())
-    return initial, states, accepting_states, initial_state, relations
+    return initial, states, accepting_states, initial_state, relations, tape_alphabet
 
 if __name__ == "__main__":
-    init, stats, accepting_stats, initial_stat, rels = render_txt('./in.txt')
+    init, stats, accepting_stats, initial_stat, rels, tape_alph = render_txt('./in.txt')
 
     print(init)
     print(stats)
     print(accepting_stats)
     print(initial_stat)
     print(rels)
+    print(tape_alph)
 
 
