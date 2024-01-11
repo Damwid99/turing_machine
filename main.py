@@ -1,18 +1,7 @@
-# from utils.utils import render_txt
-# from modules.turingMachine import TuringMachine
-
-
-# initial_word, states, final_states, initial_state, relations, tape_alphabet = render_txt('./in.txt')
-# machine = TuringMachine(relations=relations, initial_state=initial_state, final_state=final_states, states=states,
-#                         initial_word=initial_word)
-
-# machine.run()    
-
 import sys
-import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QFileDialog
 from PyQt5.QtGui import QFont
-from Touring_Gui import Ui_MainWindow 
+from Touring_Gui import Ui_TuringMachine 
 from modules.turingMachine import TuringMachine
 from utils.utils import render_txt
 from PyQt5.QtCore import QTimer
@@ -23,33 +12,47 @@ class MyMainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_TuringMachine()
         self.ui.setupUi(self)
 
         self.ui.pushButton_2.setEnabled(False)
         self.ui.pushButton_3.setEnabled(False)
+        self.ui.Stop_button.setEnabled(False)
         fixed_font = QFont("Courier New", 10)
         self.ui.plainTextEdit_2.setFont(fixed_font)
         fixed_width = 410  
         self.ui.plainTextEdit_2.setFixedWidth(fixed_width)
+        self.ui.pushButton_3.clicked.connect(self.on_button_clicked)
+        self.ui.pushButton_2.clicked.connect(self.step_forward_clicked)
+        self.ui.Stop_button.clicked.connect(self.stop_func)
 
         self.machine = None
 
         #file uploading
         self.file_path = ''
-        self.ui.pushButton_4.clicked.connect(self.upload_file)
+        self.ui.pushButton_4.clicked.connect(self.upload_file)  
+        # Add the following line to initialize continuous_printing
 
 
     def upload_file(self):
-        self.file_path = self.ui.lineEdit.text()
-        if not os.path.exists(self.file_path):
-            QMessageBox.warning(self, "File Not Found", f"The file '{self.file_path}' does not exist.")
-            self.file_path = ''
+        file_dialog = QFileDialog(self)
+        file_dialog.setNameFilter("Text files (*.txt)")
+        file_dialog.setFileMode(QFileDialog.ExistingFile) 
+
+        self.restart_machine()
+        if file_dialog.exec_():
+            selected_files = file_dialog.selectedFiles()
+            if selected_files:
+                self.file_path = selected_files[0]
+                self.ui.pushButton_2.setEnabled(True)
+                self.ui.pushButton_3.setEnabled(True)
+                self.ui.pushButton_4.setEnabled(False)
+                self.ui.Stop_button.setEnabled(True)
+                self.start_machine()
+            else:
+                QMessageBox.warning(self, "Warning", "No file selected.")
         else:
-            self.ui.pushButton_2.setEnabled(True)
-            self.ui.pushButton_3.setEnabled(True)
-            QMessageBox.information(self, "File uploaded", f"The file '{self.file_path}' was uploaded succesfully.\nPress play or step forward button to start.")
-            self.start_machine()
+            QMessageBox.warning(self, "Warning", "File dialog canceled.")
 
 
     def start_machine(self):
@@ -59,9 +62,30 @@ class MyMainWindow(QMainWindow):
         
         text_to_print = self.machine.print_tape(50)
         self.ui.plainTextEdit_2.appendPlainText(text_to_print)
-        self.ui.pushButton_3.clicked.connect(self.on_button_clicked)
-        self.ui.pushButton_2.clicked.connect(self.step_forward_clicked)
+        
         self.continuous_printing = False
+        
+
+    
+    def stop_func(self):
+        self.continuous_printing = False
+        self.ui.pushButton_2.setEnabled(False)
+        self.ui.pushButton_3.setEnabled(False)
+        self.ui.Stop_button.setEnabled(True)
+        self.restart_machine()
+
+
+    def restart_machine(self):
+        self.ui.pushButton_2.setEnabled(False)
+        self.ui.pushButton_3.setEnabled(False)
+        self.ui.pushButton_4.setEnabled(True)
+        self.ui.Stop_button.setEnabled(True)
+
+        self.machine = None
+        self.file_path = ''
+        self.ui.plainTextEdit_2.clear()
+        self.ui.lineEdit_2.clear()
+        self.ui.lineEdit_3.clear()
 
 
     def on_button_clicked(self):
@@ -88,7 +112,6 @@ class MyMainWindow(QMainWindow):
         self.check_if_in_final_state(tape_text)
 
 
-
     def update_text_continuously(self):
         if self.continuous_printing:
             text_to_print = self.machine.print_tape(50)
@@ -100,8 +123,7 @@ class MyMainWindow(QMainWindow):
             if self.machine.message:
                 self.ui.lineEdit_3.setText(self.machine.message)
                 QTimer.singleShot(1700, self.clear_message_box)
-            # You can adjust the time.sleep value to control the delay between updates.
-            # Here, we're using a short delay of 100 milliseconds.
+            
             self.check_if_in_final_state(text_to_print)
             QTimer.singleShot(100, self.update_text_continuously)
 
@@ -129,7 +151,10 @@ class MyMainWindow(QMainWindow):
             else:
                 self.ui.lineEdit_3.setText('Ended succesfully.')
             QTimer.singleShot(5000, self.clear_message_box)
-
+            self.ui.Stop_button.setEnabled(False)
+            self.ui.pushButton_2.setEnabled(False)
+            self.ui.pushButton_3.setEnabled(False)
+            self.ui.pushButton_4.setEnabled(True)
 
 
 def main():
