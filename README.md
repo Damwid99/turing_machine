@@ -142,7 +142,6 @@ To get started with the Turing Machine simulator, follow these steps:
 
    ```bash
    git clone https://github.com/your-username/turing-machine-simulator.git
-   cd turing-machine-simulator
    ``` 
 
 2.  Install dependencies:
@@ -161,7 +160,7 @@ To get started with the Turing Machine simulator, follow these steps:
   
 
 ```bash
-python main.py
+python .\turing-machine-simulator\main.py
 ```
 2. Upload a Turing Machine configuration file using the "Upload file" button.
 
