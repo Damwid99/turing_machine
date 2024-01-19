@@ -36,10 +36,17 @@ class Ui_TuringMachine(object):
         self.frame_2.setObjectName("frame_2")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.frame_2)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+
+
+
         self.plainTextEdit_2 = QtWidgets.QPlainTextEdit(self.frame_2)
         self.plainTextEdit_2.setReadOnly(True)
         self.plainTextEdit_2.setObjectName("plainTextEdit_2")
         self.horizontalLayout_4.addWidget(self.plainTextEdit_2)
+        
+        
+        
+        
         self.horizontalLayout_2.addWidget(self.frame_2)
         self.frame = QtWidgets.QFrame(self.widget_3)
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -50,10 +57,17 @@ class Ui_TuringMachine(object):
         self.label = QtWidgets.QLabel(self.frame)
         self.label.setObjectName("label")
         self.verticalLayout_3.addWidget(self.label)
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.frame)
-        self.lineEdit_2.setReadOnly(True)
-        self.lineEdit_2.setObjectName("lineEdit_2")
-        self.verticalLayout_3.addWidget(self.lineEdit_2)
+
+        self.plainTextEdit_5 = QtWidgets.QPlainTextEdit(self.frame_2)
+        self.plainTextEdit_5.setReadOnly(True)
+        self.plainTextEdit_5.setObjectName("plainTextEdit_5")
+
+        # self.lineEdit_2 = QtWidgets.QLineEdit(self.frame)
+        # self.lineEdit_2.setReadOnly(True)
+        # self.lineEdit_2.setObjectName("lineEdit_2")
+        self.verticalLayout_3.addWidget(self.plainTextEdit_5)
+        
+        
         self.label_2 = QtWidgets.QLabel(self.frame)
         self.label_2.setObjectName("label_2")
         self.verticalLayout_3.addWidget(self.label_2)
@@ -107,10 +121,9 @@ class Ui_TuringMachine(object):
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
         self.Stop_button = QtWidgets.QPushButton(self.frame_3)
         self.Stop_button.setMinimumSize(QtCore.QSize(40, 40))
-        self.Stop_button.setText("")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("turing-machine-simulator\\GUI\\icons\\211931_stop_icon.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.Stop_button.setIcon(icon1)
+
+        self.Stop_button.setText("■")
+        
         self.Stop_button.setObjectName("Stop_button")
         self.horizontalLayout_8.addWidget(self.Stop_button)
         self.horizontalLayout_5.addWidget(self.frame_3)

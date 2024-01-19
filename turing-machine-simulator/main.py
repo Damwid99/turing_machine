@@ -31,6 +31,8 @@ class MyMainWindow(QMainWindow):
         self.is_final_state = False
         self.is_ended =False
 
+        self.actual_config = None
+        self.config_text_to_save = ''
         #file uploading
         self.file_path = ''
         self.ui.pushButton_4.clicked.connect(self.upload_file)  
@@ -76,6 +78,8 @@ class MyMainWindow(QMainWindow):
         self.ui.pushButton_2.setEnabled(False)
         self.ui.pushButton_3.setEnabled(False)
         self.ui.Stop_button.setEnabled(True)
+        self.config_text_to_save += 'Machine has been stopped'
+        self.save_output()
         self.restart_machine()
 
 
@@ -87,8 +91,10 @@ class MyMainWindow(QMainWindow):
 
         self.machine = None
         self.file_path = ''
+        self.actual_config = ''
+        self.config_text_to_save = ''
         self.ui.plainTextEdit_2.clear()
-        self.ui.lineEdit_2.clear()
+        self.ui.plainTextEdit_5.clear()
         self.ui.lineEdit_3.clear()
         self.is_ended = False
         self.is_final_state =False
@@ -107,39 +113,60 @@ class MyMainWindow(QMainWindow):
     def step_forward_clicked(self):
         tape_text = self.machine.print_tape(self.approx_columns)
         self.check_if_in_final_state(tape_text)
+        self.update_actual_config()
         relation_to_show = self.machine.update_state()
         if (self.machine.actual_state in self.machine.final_state):
                 self.is_final_state=True
         if not self.is_ended:
             self.ui.plainTextEdit_2.clear()
             self.ui.plainTextEdit_2.appendPlainText(tape_text)
-            self.ui.lineEdit_2.clear()
-            self.ui.lineEdit_2.setText(str(relation_to_show))
+            self.ui.plainTextEdit_5.clear()
+            self.ui.plainTextEdit_5.appendPlainText(self.actual_config)
             if self.machine.message:
                 self.ui.lineEdit_3.setText(self.machine.message)
                 QTimer.singleShot(1700, self.clear_message_box)
         else:
             self.is_ended = False
 
+    def update_actual_config(self):
+        if self.machine.calculating_length <5000:
+            conif = "("+str(self.machine.actual_state)
+            left_side = self.machine.tape[:self.machine.tape_index]
+            right_side = self.machine.tape[self.machine.tape_index:]
+            if all( v == '#' for v in left_side):
+                left_side='#'
+            else:
+                left_side = ''.join(left_side).lstrip('#')
+            if all( v == '#' for v in right_side):
+                right_side='#'
+            else:
+                right_side = ''.join(right_side).rstrip('#')
 
+            self.actual_config = "("+str(self.machine.actual_state) + ', ' + left_side + ', ' + right_side + ')' +'\n'
+            self.config_text_to_save +=self.actual_config
+        elif self.machine.calculating_length > 5000 and self.actual_config != 'Calculating length bigger than 5000':
+            self.actual_config = 'Calculating length bigger than 5000'
+            self.config_text_to_save += self.actual_config
+        
 
     def update_text_continuously(self):
         if self.continuous_printing:
             text_to_print = self.machine.print_tape(self.approx_columns)
             self.check_if_in_final_state(text_to_print)
+            self.update_actual_config()
             relation_to_show = self.machine.update_state()
             if (self.machine.actual_state in self.machine.final_state):
                 self.is_final_state=True
             if not self.is_ended:
                 self.ui.plainTextEdit_2.clear()
                 self.ui.plainTextEdit_2.appendPlainText(text_to_print)
-                self.ui.lineEdit_2.clear()
-                self.ui.lineEdit_2.setText(str(relation_to_show))
+                self.ui.plainTextEdit_5.clear()
+                self.ui.plainTextEdit_5.appendPlainText(self.actual_config)
                 if self.machine.message:
                     self.ui.lineEdit_3.setText(self.machine.message)
                     QTimer.singleShot(1600, self.clear_message_box)
                 
-                QTimer.singleShot(100, self.update_text_continuously)
+                QTimer.singleShot(1, self.update_text_continuously)
             else:
                 self.is_ended = False
 
@@ -162,19 +189,41 @@ class MyMainWindow(QMainWindow):
             previous_text += final_text
             self.ui.plainTextEdit_2.clear()
             self.ui.plainTextEdit_2.appendPlainText(previous_text)
+            self.update_actual_config()
+            self.ui.plainTextEdit_5.clear()
+            self.ui.plainTextEdit_5.appendPlainText(self.actual_config)
+
             if self.is_final_state==True:
                 self.ui.lineEdit_3.setText('Ended succesfully.')
                 self.is_ended=True
+                self.config_text_to_save += 'Ended succesfully'
             else:
                 self.ui.lineEdit_3.setText(self.machine.message)
+                self.config_text_to_save += f'{self.machine.message}'
             QTimer.singleShot(5000, self.clear_message_box)
-            
+            self.save_output()
             
             self.ui.Stop_button.setEnabled(False)
             self.ui.pushButton_2.setEnabled(False)
             self.ui.pushButton_3.setEnabled(False)
             self.ui.pushButton_4.setEnabled(True)
         
+
+    def save_output(self):
+        last_slash_index = self.file_path.rfind('/')
+
+        if last_slash_index != -1:
+            file_name = self.file_path[last_slash_index + 1:]
+        else:
+            file_name = self.file_path
+
+        file_name = file_name.replace('.txt', '')
+
+
+        with open(f'{file_name}_out.txt', 'w') as file:
+            file.write(self.config_text_to_save)
+        
+    
 
 def main():
     app = QApplication(sys.argv)
